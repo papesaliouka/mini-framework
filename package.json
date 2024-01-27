@@ -1,0 +1,19 @@
+{
+  "name": "mini-framework",
+  "version": "1.0.0",
+  "description": "a project for abstracting dom",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "example": "examples",
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "test"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "jest": "^29.7.0"
+  }
+}
