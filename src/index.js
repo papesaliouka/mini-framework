@@ -1,14 +1,29 @@
 // Import core modules
-import './core/dom';
-import './core/router';
-import './core/state';
+import {
+    createElement,
+    updateElement,
+    addListener,
+    removeListener,
+} from './core/dom';
 
-// Import event system
-import './events';
+import {
+    StateManager,
+    bind
+} from  './core/state';
+
+
+import Component from "./core/components"
 
 // Export the framework's public API
 export default {
   // Framework's public methods and properties
+    createElement,
+    updateElement,
+    addListener,
+    removeListener,
+    StateManager,
+    bind,
+    Component
 };
 
 
