@@ -1,4 +1,8 @@
+/**
+ * @jest-environment jsdom
+ */
 import { createElement } from '../../src/core/dom/createElement';
+import {describe, expect, it} from '@jest/globals';
 
 describe('createElement', () => {
     it('should create an element with the specified tag', () => {

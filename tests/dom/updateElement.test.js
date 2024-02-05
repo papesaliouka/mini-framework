@@ -1,6 +1,13 @@
+/**
+ * @jest-environment jsdom
+ */
 
-import { updateElement } from '../dom/updateElement';
-import { createElement } from '../dom/createElement';
+import {describe, expect,it,
+    beforeEach,
+} from '@jest/globals';
+
+import { updateElement } from '../../src/core/dom/updateElement';
+import { createElement } from '../../src/core/dom/createElement';
 
 // tests/dom/updateElement.test.js
 

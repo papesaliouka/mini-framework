@@ -1,3 +1,4 @@
+import {describe, expect, it, beforeEach} from '@jest/globals';
 import StateManager from '../../src/core/state/StateManager';
 
 describe('StateManager', () => {
