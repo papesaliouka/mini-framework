@@ -11,8 +11,5 @@ export default {
   // Framework's public methods and properties
 };
 
-// src/index.js
 
-export * from './core/dom';
-// Re-export other core functionalities
 

@@ -225,9 +225,7 @@ function updateFunctionComponent(fiber) {
 // Custom hook to manage state in functional components
 function useState(initial) {
   const oldHook =
-    wipFiber.alternate &&
-    wipFiber.alternate.hooks &&
-    wipFiber.alternate.hooks[hookIndex];
+    wipFiber.alternate?.hooks[hookIndex];
   const hook = {
     state: oldHook ? oldHook.state : initial,
     queue: [],
@@ -332,14 +330,13 @@ const MiniReact = {
 /** @jsx MiniReact.createElement */
 function Counter() {
   const [state, setState] = MiniReact.useState(1);
+  console.log(state)
   return (
-    <h1 onClick={() => setState(c => c + 1)}>
-      Count: {state}
-    </h1>
+      "hello"
   );
 }
 
 // Rendering the example component
-const element = <Counter />;
+const element = Counter()
 const container = document.getElementById("root");
 MiniReact.render(element, container);
