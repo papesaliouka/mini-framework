@@ -40,22 +40,45 @@ export default class Component {
 
     mount(selector) {
         const container = document.querySelector(selector);
-        this.element = this.render(); // Assume this returns a DOM element
-        container.innerHTML = this.element;
-        this.componentDidMount(); // Mounting hook
+        // Ensure container is not null
+        if (!container) {
+            console.error(`Cannot find element with selector '${selector}'`);
+            return;
+        }
+    
+        // Convert the HTML string to DOM elements and append
+        const tempContainer = document.createElement('div');
+        tempContainer.innerHTML = this.render(); // Assuming render returns an HTML string
+    
+        // Assuming you want to replace the entire content of the container
+        container.innerHTML = '';
+        Array.from(tempContainer.childNodes).forEach(child => {
+            container.appendChild(child);
+        });
+    
+        this.element = container; // Assuming you want to keep a reference to the container
+    
+        this.componentDidMount();
     }
-
+    
     unmount() {
         this.componentWillUnmount(); // Unmounting hook
         this.element.remove();
     }
 
     update() {
-        // Efficiently update the DOM based on new state
-        const newElement = this.render(); // Assume this returns a DOM element
-        //this.element.replaceWith(newElement);
-        console.log(this.element);
-        this.element = newElement;
+        const newContent = this.render(); // Assuming this returns new HTML content
+        const tempContainer = document.createElement('div');
+        tempContainer.innerHTML = newContent;
+    
+        // Assuming this.element references the container from mount
+        this.element.innerHTML = ''; // Clear existing content
+        Array.from(tempContainer.childNodes).forEach(child => {
+            this.element.appendChild(child);
+        });
+    
+        // Re-attach event listeners or perform other update-related tasks
     }
+    
 }
 
