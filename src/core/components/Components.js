@@ -4,45 +4,58 @@ export default class Component {
     constructor(props = {}) {
         this.props = props;
         this.state = {};
+        this.element = null; // Reference to the DOM element
         this.init(); // Initialization hook
     }
 
     init() {
-        // Hook for initialization logic, can be overridden in subclass
+        // Initialization logic (can be overridden in subclass)
     }
 
     setState(newState) {
         const oldState = this.state;
         this.state = { ...this.state, ...newState };
-        this.render();
+
+        // Re-render the component
+        this.update();
         this.componentDidUpdate(oldState, this.state); // Update hook
     }
 
     componentDidMount() {
-        // Hook called after component is mounted, to be overridden in subclass
+        // Called after component is mounted (to be overridden in subclass)
     }
 
     componentDidUpdate(oldState, newState) {
-        // Hook called after state update, to be overridden in subclass
+        // Called after state update (to be overridden in subclass)
     }
 
     componentWillUnmount() {
-        // Hook called before the component is unmounted, to be overridden in subclass
+        // Called before the component is unmounted (to be overridden in subclass)
     }
 
+// src/core/components/Component.js
     render() {
-        // This method should be overridden by the component to return its HTML structure
+        // Should be overridden by the component to return its structure (possibly JSX)
     }
 
     mount(selector) {
-        this.element = document.querySelector(selector);
-        this.element.innerHTML = this.render();
+        const container = document.querySelector(selector);
+        this.element = this.render(); // Assume this returns a DOM element
+        container.innerHTML = this.element;
         this.componentDidMount(); // Mounting hook
     }
 
     unmount() {
         this.componentWillUnmount(); // Unmounting hook
         this.element.remove();
+    }
+
+    update() {
+        // Efficiently update the DOM based on new state
+        const newElement = this.render(); // Assume this returns a DOM element
+        //this.element.replaceWith(newElement);
+        console.log(this.element);
+        this.element = newElement;
     }
 }
 

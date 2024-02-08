@@ -1,4 +1,4 @@
-import TemplatingEngine from '../templating/templatingEngine';
+import TemplatingEngine from '../templating/templatingEngine.js';
 
 // src/core/state/StateManager.js
 class StateManager {

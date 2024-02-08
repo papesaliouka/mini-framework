@@ -1,3 +1,7 @@
+//dom/updateElement.js
+
+import { addListener, removeListeners } from './listenerManager.js';
+
 function updateElement(element, updates) {
     // Update text content
     if (typeof updates.text !== 'undefined') {
@@ -26,4 +30,6 @@ function updateElement(element, updates) {
 
     return element;
 }
+
+export { updateElement}
 

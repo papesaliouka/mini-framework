@@ -1,3 +1,5 @@
+//dom/createElement.js
+
 function createElement(tagName, attributes = {}, children = [], condition = true) {
     if (!condition) {
         return document.createDocumentFragment();
@@ -28,4 +30,6 @@ function createElement(tagName, attributes = {}, children = [], condition = true
 
     return element;
 }
+
+export { createElement };
 

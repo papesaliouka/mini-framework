@@ -1,3 +1,5 @@
+// dom/listenersManager.js
+
 let listenerIdCounter = 0;
 const elementListenersMap = new Map();
 
@@ -25,4 +27,7 @@ function removeListeners(element) {
     }
     elementListenersMap.delete(element._listenerId);
 }
+
+
+export { addListener, removeListeners }
 

@@ -1,5 +1,6 @@
+//dom/index.js
 // dom related code here
-export { default as createElement } from './createElement';
-export { default as updateElement } from './updateElement';
-export * from './listenerManager'; // Export the listener management functionalities
+export * from './createElement.js';
+export * from './updateElement.js';
+export * from './listenerManager.js'; // Export the listener management functionalities
 

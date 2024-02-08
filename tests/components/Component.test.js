@@ -3,7 +3,7 @@
  */
 import {describe, expect, it} from '@jest/globals';
 
-import Component from '../../src/core/components/Components';
+import Component from '../../src/core/components/Components.js';
 
 class TestComponent extends Component {
     constructor(props) {
