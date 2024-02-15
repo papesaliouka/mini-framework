@@ -38,7 +38,7 @@ class Router {
                 return;
             }
 
-            this.currentComponent = new Component();
+            this.currentComponent = new Component({router: this}, this.stateManager);
             this.currentComponent.mount(container);
         } else {
             console.error(`No component defined for ${path}`);
