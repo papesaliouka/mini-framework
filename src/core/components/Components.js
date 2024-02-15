@@ -1,4 +1,5 @@
 // src/core/components/Component.js
+import {createElement} from '../dom';
 
 export default class Component {
     constructor(props = {}) {
@@ -68,7 +69,7 @@ export default class Component {
 
     update() {
         const newContent = this.render(); // Assuming this returns new HTML content
-        const tempContainer = document.createElement('div');
+        const tempContainer = createElement('div');
         tempContainer.innerHTML = newContent;
     
         // Assuming this.element references the container from mount
