@@ -12,9 +12,6 @@ describe('MyFramework', () => {
     });
     
 
-    it('should have a method called render', () => {
-        expect(MyFramework.render).toBeDefined();
-    });
 
     it('should have a method called createElement', () => {
         expect(MyFramework.createElement).toBeDefined();

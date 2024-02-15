@@ -1,85 +1,93 @@
-// src/core/components/Component.js
-import {createElement} from '../dom';
-
 export default class Component {
-    constructor(props = {}) {
+    constructor(props = {}, stateManager) {
         this.props = props;
         this.state = {};
-        this.element = null; // Reference to the DOM element
-        this.init(); // Initialization hook
+        this.stateManager = stateManager; // Assuming state management is integrated
+        this.element = null; // Will hold the direct reference to the DOM element
+        this.subscriptions = []; // For state change listeners
+        this.init(); // Custom initialization logic for subclasses
     }
 
     init() {
-        // Initialization logic (can be overridden in subclass)
+        // Initialization logic for subclasses
     }
 
     setState(newState) {
-        const oldState = this.state;
+        const oldState = { ...this.state };
         this.state = { ...this.state, ...newState };
 
-        // Re-render the component
-        this.update();
-        this.componentDidUpdate(oldState, this.state); // Update hook
+        // Check if the state actually changed to decide on re-rendering
+        const stateChanged = Object.keys(newState).some(key => this.state[key] !== oldState[key]);
+        if (stateChanged) {
+            this.update();
+            this.componentDidUpdate(oldState, this.state);
+        }
     }
 
     componentDidMount() {
-        // Called after component is mounted (to be overridden in subclass)
+        // Lifecycle hook for after the component mounts
     }
 
     componentDidUpdate(oldState, newState) {
-        // Called after state update (to be overridden in subclass)
+        // Lifecycle hook for after the component updates
     }
 
     componentWillUnmount() {
-        // Called before the component is unmounted (to be overridden in subclass)
+        // Lifecycle hook for before the component unmounts
+        this.unsubscribeAll();
     }
 
-// src/core/components/Component.js
     render() {
-        // Should be overridden by the component to return its structure (possibly JSX)
+        // Should be implemented by subclasses to return HTML content
     }
 
-    mount(selector) {
-        const container = document.querySelector(selector);
-        // Ensure container is not null
-        if (!container) {
-            console.error(`Cannot find element with selector '${selector}'`);
+    subscribeToState(property, callback) {
+        this.stateManager.addListener(property, callback);
+        this.subscriptions.push({ property, callback });
+    }
+
+    unsubscribeAll() {
+        this.subscriptions.forEach(({ property, callback }) => {
+            this.stateManager.removeListener(property, callback);
+        });
+        this.subscriptions = [];
+    }
+
+    mount(container) {
+        let mountPoint = container;
+        if (typeof container === 'string') {
+            mountPoint = document.querySelector(container);
+            if (!mountPoint) {
+                console.error(`Cannot find element with selector '${container}'`);
+                return;
+            }
+        } else if (!(container instanceof HTMLElement)) {
+            console.error('The mount function requires a selector string or an HTMLElement.');
             return;
         }
-    
-        // Convert the HTML string to DOM elements and append
-        const tempContainer = document.createElement('div');
-        tempContainer.innerHTML = this.render(); // Assuming render returns an HTML string
-    
-        // Assuming you want to replace the entire content of the container
-        container.innerHTML = '';
-        Array.from(tempContainer.childNodes).forEach(child => {
-            container.appendChild(child);
-        });
-    
-        this.element = container; // Assuming you want to keep a reference to the container
-    
-        this.componentDidMount();
+
+        mountPoint.innerHTML = this.render(); // Inject the component's HTML into the mount point
+        this.element = mountPoint; // Keep a reference to the mounted element
+        this.componentDidMount(); // Call the mounted lifecycle hook
+        this.bindEvents(); // Attach any required event listeners
     }
-    
+
     unmount() {
-        this.componentWillUnmount(); // Unmounting hook
-        this.element.remove();
+        if (this.element) {
+            this.componentWillUnmount(); // Lifecycle hook before unmounting
+            this.element.innerHTML = ''; // Clear the component's content
+        }
     }
 
     update() {
-        const newContent = this.render(); // Assuming this returns new HTML content
-        const tempContainer = createElement('div');
-        tempContainer.innerHTML = newContent;
-    
-        // Assuming this.element references the container from mount
-        this.element.innerHTML = ''; // Clear existing content
-        Array.from(tempContainer.childNodes).forEach(child => {
-            this.element.appendChild(child);
-        });
-    
-        // Re-attach event listeners or perform other update-related tasks
+        if (this.element) {
+            this.element.innerHTML = this.render(); // Re-render the component's content
+            this.bindEvents(); // Re-attach event listeners as necessary
+        }
     }
-    
+
+    bindEvents() {
+        // Placeholder for subclasses to attach event listeners
+    }
 }
 

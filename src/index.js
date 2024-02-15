@@ -11,9 +11,8 @@ import {
     bind
 } from  './core/state/index.js';
 
-import {
-    render as vdomRender,
-} from "./core/vdom/index.js";
+import Router from './core/router';
+
 
 import Component from "./core/components/Components.js";
 
@@ -23,11 +22,6 @@ import Component from "./core/components/Components.js";
  * @param {Component} component - The component to render.
  * @param {HTMLElement} container - The DOM container to render the component into.
  */
-function render(component, container) {
-    const virtualDOM = vdomRender(component);
-    // Initial render or update existing
-    updateElement(container, virtualDOM, container.firstChild);
-}
 
 // Export the framework's public API
 export default {
@@ -38,6 +32,6 @@ export default {
     StateManager, // State management functionality
     bind, // Function for state binding
     Component, // Base class for framework components
-    render // Function to render components into the DOM
+    Router, // Router class
 };
 
