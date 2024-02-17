@@ -43,6 +43,7 @@ class TodoApp extends Psk.Component {
     }
 
     setFilter = (newFilter) => {
+        console.log(newFilter);
         this.setState({ filter: newFilter }, this.update); // Update filter state and re-render
     };
 
@@ -115,6 +116,12 @@ class TodoApp extends Psk.Component {
         });
         this.setState({ todos: updatedTodos }, this.update);
     }
+
+    clearCompleted = () => {
+        const updatedTodos = this.state.todos.filter(todo => !todo.completed);
+        this.setState({ todos: updatedTodos }, this.update);
+    }
+
     
     
         
@@ -122,8 +129,14 @@ class TodoApp extends Psk.Component {
         const todoListElement = this.element.querySelector('#todoList');
         todoListElement.innerHTML = '';
 
-    
-        this.state.todos.forEach((todo, index) => {
+        this.state.todos.filter(todo => {
+                switch (this.state.filter) {
+                    case 'active': return !todo.completed;
+                    case 'completed': return todo.completed;
+                    default: return true;
+                    }
+                })
+        .map((todo, index) => {
             const todoItemElement = createElement('li', { key: index, class: todo.completed ? "completed":"" }, [
                 createElement('div', { class: 'view' }, [
                     createElement('input', 
@@ -154,6 +167,10 @@ class TodoApp extends Psk.Component {
             ]);
             todoListElement.appendChild(todoItemElement);
         });
+
+        const todoCountElement = this.element.querySelector('.todo-count');
+        todoCountElement.textContent = `${this.state.todos.filter(item=> !item.completed).length} items left`;
+
     }
     
     
@@ -212,13 +229,20 @@ class TodoApp extends Psk.Component {
                 createElement('ul', { class: 'todo-list', id: 'todoList' }, filteredTodos)
             ]),
             createElement('footer', { class: 'footer', 'data-testid': 'footer' }, [
-                createElement('span', { class: 'todo-count' }, `${this.state.todos.length} items left`),
+                createElement('span', { class: 'todo-count' }, `${this.state.todos.filter(item=>!item.completed).length} items left`),
                 createElement('ul', { class: 'filters', 'data-testid': 'footer-navigation' }, [
                     createElement('li', {}, [createElement('a', { href: '#/', onclick: () => this.setFilter('all') }, 'All')]),
                     createElement('li', {}, [createElement('a', { href: '#/active', onclick: () => this.setFilter('active') }, 'Active')]),
                     createElement('li', {}, [createElement('a', { href: '#/completed', onclick: () => this.setFilter('completed') }, 'Completed')])
                 ]),
-                createElement('button', { class: 'clear-completed' }, 'Clear completed')
+                createElement(
+                    'button', 
+                    {
+                        class: 'clear-completed',
+                        onclick: () => this.clearCompleted()                
+                    }, 
+                    'Clear completed'
+                )
             ])
         ]);
     }
