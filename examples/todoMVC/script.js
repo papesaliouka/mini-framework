@@ -57,6 +57,13 @@ class TodoApp extends Psk.Component {
         this.stateManager.setState({ todos: updatedTodos });
         this.setState({ todos: updatedTodos }, this.update);
     }
+
+    toggleAllTodos = () => {
+        const allCompleted = this.state.todos.every(todo => todo.completed);
+        const updatedTodos = this.state.todos.map(todo => ({ ...todo, completed: !allCompleted }));
+        this.stateManager.setState({ todos: updatedTodos });
+        this.setState({ todos: updatedTodos }, this.update);
+    }
     
 
 
@@ -119,6 +126,7 @@ class TodoApp extends Psk.Component {
 
     clearCompleted = () => {
         const updatedTodos = this.state.todos.filter(todo => !todo.completed);
+        this.stateManager.setState({ todos: updatedTodos });
         this.setState({ todos: updatedTodos }, this.update);
     }
 
@@ -130,11 +138,13 @@ class TodoApp extends Psk.Component {
         todoListElement.innerHTML = '';
 
         this.state.todos.filter(todo => {
-                switch (this.state.filter) {
-                    case 'active': return !todo.completed;
-                    case 'completed': return todo.completed;
-                    default: return true;
-                    }
+            if( this.state.filter === 'active') {
+                return !todo.completed;
+            } else if (this.state.filter === 'completed') {
+                return todo.completed;
+            } else {
+                return true;
+            }
                 })
         .map((todo, index) => {
             const todoItemElement = createElement('li', { key: index, class: todo.completed ? "completed":"" }, [
@@ -177,11 +187,15 @@ class TodoApp extends Psk.Component {
 
     render() {
          const filteredTodos = this.state.todos.filter(todo => {
-            switch (this.state.filter) {
-                case 'active': return !todo.completed;
-                case 'completed': return todo.completed;
-                default: return true;
-            }
+             if( this.state.filter === 'active') {
+                 return !todo.completed;
+             } else if (this.state.filter === 'completed') {
+                    return todo.completed;
+                } else {
+                    return true;
+                }
+
+            
         }).map((todo, index) => {
             return createElement('li', { key: index, class: todo.completed ? "completed":""  }, [
                 createElement('div', { class: 'view' }, [
@@ -222,6 +236,7 @@ class TodoApp extends Psk.Component {
                     createElement('input', {
                         class: 'toggle-all',
                         type: 'checkbox',
+                        onclick: this.toggleAllTodos,
                         'data-testid': 'toggle-all'
                     }),
                     createElement('label', { class: 'toggle-all-label', for: 'toggle-all' }, 'Toggle All Input')
