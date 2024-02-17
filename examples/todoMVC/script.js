@@ -7,7 +7,7 @@ class TodoApp extends Psk.Component {
         super(props, stateManager);
         this.state = {
             newTodo: '',
-            todos: stateManager.state.todos || [],
+            todos: stateManager.state.todos || [{ text: 'Learn about Web Components', isEditing: false, completed: true }],
             filter: 'all' // Add a filter state to manage the current view
         };
         this.handleInputEvent = this.updateNewTodoValue.bind(this);
@@ -18,7 +18,7 @@ class TodoApp extends Psk.Component {
     addTodo = () => {
         const newTodoText = this.state.newTodo.trim();
         if (newTodoText) {
-            const newTodo = { text: newTodoText, isEditing: false };
+            const newTodo = { text: newTodoText, isEditing: false, completed: false };
             const updatedTodos = [...this.state.todos, newTodo];
             this.stateManager.setState({ todos: updatedTodos });
             this.setState({ newTodo: '' }, this.update);
@@ -45,6 +45,18 @@ class TodoApp extends Psk.Component {
     setFilter = (newFilter) => {
         this.setState({ filter: newFilter }, this.update); // Update filter state and re-render
     };
+
+    toggleTodoCompletion = (index) => {
+        const updatedTodos = this.state.todos.map((todo, i) => {
+            if (i === index) {
+                return { ...todo, completed: !todo.completed };
+            }
+            return todo;
+        });
+        this.stateManager.setState({ todos: updatedTodos });
+        this.setState({ todos: updatedTodos }, this.update);
+    }
+    
 
 
     componentDidMount() {
@@ -109,11 +121,19 @@ class TodoApp extends Psk.Component {
     update() {
         const todoListElement = this.element.querySelector('#todoList');
         todoListElement.innerHTML = '';
+
     
         this.state.todos.forEach((todo, index) => {
-            const todoItemElement = createElement('li', { key: index }, [
+            const todoItemElement = createElement('li', { key: index, class: todo.completed ? "completed":"" }, [
                 createElement('div', { class: 'view' }, [
-                    createElement('input', { class: 'toggle', type: 'checkbox' }),
+                    createElement('input', 
+                        { class: 'toggle',
+                            id: `todo-${index}`,
+                            type: 'checkbox',
+                            checked: todo.completed,
+                            onclick: () => this.toggleTodoCompletion(index)                        
+                        }
+                    ),
                     createElement('label', {
                         contentEditable: todo.isEditing ? true : false,
                         onblur: (event) => this.updateTodoText(index, event.target.textContent),
@@ -145,6 +165,25 @@ class TodoApp extends Psk.Component {
                 case 'completed': return todo.completed;
                 default: return true;
             }
+        }).map((todo, index) => {
+            return createElement('li', { key: index, class: todo.completed ? "completed":""  }, [
+                createElement('div', { class: 'view' }, [
+                    createElement('input', 
+                        { class: 'toggle',
+                            type: 'checkbox',
+                            id: `todo-${index}`,
+                            checked: todo.completed,
+                            onclick: () => this.toggleTodoCompletion(index)
+                        }
+                    ),
+                    createElement('label', { contentEditable: todo.isEditing ? true : false }, todo.text),
+                    createElement('button', {
+                        class: 'destroy removeTodoButton',
+                        'data-index': index,
+                        onclick: () => this.removeTodo(index),
+                    }),
+                ]),
+            ]);
         });
         // Constructing the entire component tree with createElement
         return createElement('section', { class: 'todoapp' }, [
