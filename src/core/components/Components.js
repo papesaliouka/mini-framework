@@ -66,7 +66,7 @@ export default class Component {
             return;
         }
 
-        mountPoint.innerHTML = this.render(); // Inject the component's HTML into the mount point
+        mountPoint.appendChild(this.render()); // Append the component's content to the mount point
         this.element = mountPoint; // Keep a reference to the mounted element
         this.componentDidMount(); // Call the mounted lifecycle hook
         this.bindEvents(); // Attach any required event listeners

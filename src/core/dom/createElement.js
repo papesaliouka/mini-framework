@@ -19,17 +19,35 @@ function createElement(tagName, attributes = {}, children = [], condition = true
         }
     });
 
-    // Append children
-    children.forEach(child => {
-        if (typeof child === 'string') {
-            element.appendChild(document.createTextNode(child));
-        } else if (child instanceof Node) {
-            element.appendChild(child);
-        }
-    });
+    // Ensure children is always an array
+    const safeChildren = Array.isArray(children) ? children : [children];
+
+    // Recursively append children
+    const appendChildren = (parent, children) => {
+        children.forEach(child => {
+            if (typeof child === 'string') {
+                parent.appendChild(document.createTextNode(child));
+            } else if (Array.isArray(child)) {
+                // If child is an array, recursively append its elements
+                appendChildren(parent, child);
+            } else if (child instanceof Node) {
+                parent.appendChild(child);
+            } else if (child === null || child === undefined) {
+                // Optionally handle null or undefined children
+                // For example, by ignoring them or appending a placeholder
+                // This part is up to your requirements
+            } else {
+                console.warn('Unsupported child type:', child);
+            }
+        });
+    };
+
+    // Append children to the element
+    appendChildren(element, safeChildren);
 
     return element;
 }
+
 
 export { createElement };
 

@@ -1,178 +1,194 @@
-import Psk from "../../src"
-// Assuming Psk.Component is similar to the earlier described Component class
+import Psk from "../../src";
+
+const { createElement } = Psk;
 
 class TodoApp extends Psk.Component {
     constructor(props, stateManager) {
         super(props, stateManager);
         this.state = {
             newTodo: '',
-            todos: stateManager.state.todos || []
+            todos: stateManager.state.todos || [],
+            filter: 'all' // Add a filter state to manage the current view
         };
-        // Bind methods if not using arrow functions
+        this.handleInputEvent = this.updateNewTodoValue.bind(this);
+        this.handleKeyPressEvent = this.handleKeyPress.bind(this);
+        this.handleClickEvent = this.handleClick.bind(this);
     }
 
-    // Adds a new todo
     addTodo = () => {
-        const newTodo = this.state.newTodo.trim();
-        if (newTodo) {
-            const currentTodos = this.stateManager.state.todos || [];
-            this.stateManager.setState({
-                todos: [...currentTodos, newTodo]
-            });
-            // Reset the local newTodo state and maintain focus
-            this.setState({ newTodo: '' });
-            this.focusNewTodoInput();
+        const newTodoText = this.state.newTodo.trim();
+        if (newTodoText) {
+            const newTodo = { text: newTodoText, isEditing: false };
+            const updatedTodos = [...this.state.todos, newTodo];
+            this.stateManager.setState({ todos: updatedTodos });
+            this.setState({ newTodo: '' }, this.update);
         }
-
-        console.log('addTodo', this.stateManager.state.todos);
     }
-
-    focusNewTodoInput() {
-        const newTodoInput = this.element.querySelector('#newTodoInput');
-        newTodoInput.value = ''; // Clear the input field
-        newTodoInput.focus(); // Maintain focus
+    
+    
+    focusNewTodoInput = () => {
+        const newTodoInput = document.getElementById('newTodoInput');
+        newTodoInput.value = '';
+        if (newTodoInput) newTodoInput.focus();
     }
 
     removeTodo = (index) => {
-        const currentTodos = this.stateManager.state.todos || [];
-        this.stateManager.setState({
-            todos: currentTodos.filter((_, i) => i !== index)
-        });
+        const updatedTodos = this.state.todos.filter((_, i) => i !== index);
+        this.stateManager.setState({ todos: updatedTodos });
+        this.setState({ todos: updatedTodos }, this.update); // Update state and trigger re-render
     }
 
     updateNewTodoValue = (event) => {
-     this.setState({ newTodo: event.target.value });
+        this.setState({ newTodo: event.target.value });
     }
+
+    setFilter = (newFilter) => {
+        this.setState({ filter: newFilter }, this.update); // Update filter state and re-render
+    };
 
 
     componentDidMount() {
-        this.stateManager.addListener('todos', todos => this.update());
+        this.stateManager.addListener('todos', todos => {
+            this.setState({ todos }, this.update); // Update state and trigger re-render
+        });
         this.attachEventListeners();
     }
 
     componentWillUnmount() {
+        this.detachEventListeners();
         this.stateManager.removeListener('todos', this.update);
     }
 
+
+    attachEventListeners = () => {
+        const todoAppContainer = this.element;
+        todoAppContainer.addEventListener('input', this.handleInputEvent);
+        todoAppContainer.addEventListener('keypress', this.handleKeyPressEvent);
+        todoAppContainer.addEventListener('click', this.handleClickEvent);
+    };
+    
+    detachEventListeners = () => {
+        const todoAppContainer = this.element;
+        todoAppContainer.removeEventListener('input', this.handleInputEvent);
+        todoAppContainer.removeEventListener('keypress', this.handleKeyPressEvent);
+        todoAppContainer.removeEventListener('click', this.handleClickEvent);
+    };
+
+    handleKeyPress = (event) => {
+        if (event.target.id === 'newTodoInput' && event.key === 'Enter') {
+            this.addTodo();
+            this.focusNewTodoInput();
+        }
+    };
+    
+    handleClick = (event) => {
+        if (event.target.classList.contains('removeTodoButton')) {
+            const index = parseInt(event.target.dataset.index, 10);
+            this.removeTodo(index);
+        }
+    };
+
+    toggleEditTodo = (index) => {
+        const updatedTodos = this.state.todos.map((todo, i) => {
+            if (i === index) return { ...todo, isEditing: !todo.isEditing };
+            return todo;
+        });
+        this.setState({ todos: updatedTodos }, this.update);
+    }
+
+    updateTodoText = (index, newText) => {
+        const updatedTodos = this.state.todos.map((todo, i) => {
+            if (i === index) return { ...todo, text: newText, isEditing: false };
+            return todo;
+        });
+        this.setState({ todos: updatedTodos }, this.update);
+    }
+    
+    
+        
     update() {
-        // Use global todos for rendering within the update method
-        const todos = this.stateManager.state.todos || [];
-    
-        const todoListHtml = todos.map((todo, index) => `
-            <li>
-                ${todo}
-                <button class="removeTodoButton" data-index="${index}">Remove</button>
-            </li>
-        `).join('');
-    
         const todoListElement = this.element.querySelector('#todoList');
-        todoListElement.innerHTML = todoListHtml;
+        todoListElement.innerHTML = '';
     
-        // Reattach event listeners for the dynamically created "Remove" buttons
-        this.attachRemoveTodoListeners();
-    
-        // The focus handling on the input field remains unchanged
-    }
-
-    // Attaches event listeners to static and dynamic elements
-    attachEventListeners() {
-        const addButton = this.element.querySelector('#addTodoButton');
-        const newTodoInput = this.element.querySelector('#newTodoInput');
-        const aboutLink = this.element.querySelector('#aboutLink');
-
-        //addButton.addEventListener('click', this.addTodo);
-        Psk.addListener(addButton,'click',this.addTodo);
-       // newTodoInput.addEventListener('input', this.updateNewTodoValue);
-        Psk.addListener(newTodoInput,'input',this.updateNewTodoValue);
-        Psk.addListener(aboutLink,"click",this.navigateToAbout)
-       // aboutLink.addEventListener('click', this.navigateToAbout);
-
-        // Attach listeners for dynamically added remove buttons
-        this.attachRemoveTodoListeners();
-    }
-
-    // Attaches event listeners to dynamically created "Remove" buttons
-    attachRemoveTodoListeners() {
-        this.element.querySelectorAll('.removeTodoButton').forEach((button, index) => {
-            button.addEventListener('click', () => this.removeTodo(index));
+        this.state.todos.forEach((todo, index) => {
+            const todoItemElement = createElement('li', { key: index }, [
+                createElement('div', { class: 'view' }, [
+                    createElement('input', { class: 'toggle', type: 'checkbox' }),
+                    createElement('label', {
+                        contentEditable: todo.isEditing ? true : false,
+                        onblur: (event) => this.updateTodoText(index, event.target.textContent),
+                        onkeypress: (event) => {
+                            if (event.key === 'Enter') {
+                                event.preventDefault(); // Prevent newline on enter
+                                event.target.blur(); // Save changes on enter
+                            }
+                        },
+                        onclick: () => { if (!todo.isEditing) this.toggleEditTodo(index); },
+                    }, todo.text),
+                    createElement('button', {
+                        class: 'destroy removeTodoButton',
+                        'data-index': index,
+                        onclick: () => this.removeTodo(index),
+                    }),
+                ]),
+            ]);
+            todoListElement.appendChild(todoItemElement);
         });
     }
-
-    navigateToAbout = () => {
-        this.props.router.navigate('/about');
-    }
-
+    
+    
 
     render() {
-        // Use global todos for rendering
-        const todos = this.stateManager.state.todos || [];
-        return `
-            <div>
-                <h1>Todo App</h1>
-                <input type="text" id="newTodoInput" placeholder="Add a new todo" value="${this.state.newTodo}" />
-                <button id="addTodoButton">Add Todo</button>
-                <ul id="todoList">
-                    ${todos.map((todo, index) => `
-                        <li>
-                            ${todo}
-                            <button class="removeTodoButton" data-index="${index}">Remove</button>
-                        </li>
-                    `).join('')}
-                </ul>
-                <button  id="aboutLink">About</button>
-            </div>
-        `;
+         const filteredTodos = this.state.todos.filter(todo => {
+            switch (this.state.filter) {
+                case 'active': return !todo.completed;
+                case 'completed': return todo.completed;
+                default: return true;
+            }
+        });
+        // Constructing the entire component tree with createElement
+        return createElement('section', { class: 'todoapp' }, [
+            createElement('header', { class: 'header' }, [
+                createElement('h1', {}, 'Todos'),
+                createElement('div', { class: 'input-container' }, [
+                    createElement('input', {
+                        class: 'new-todo',
+                        type: 'text',
+                        id: 'newTodoInput',
+                        placeholder: 'What needs to be done?',
+                        value: this.state.newTodo,
+                        oninput: this.updateNewTodoValue // Handling input event
+                    })
+                ])
+            ]),
+            createElement('main', { class: 'main' }, [
+                createElement('div', { class: 'toggle-all-container' }, [
+                    createElement('input', {
+                        class: 'toggle-all',
+                        type: 'checkbox',
+                        'data-testid': 'toggle-all'
+                    }),
+                    createElement('label', { class: 'toggle-all-label', for: 'toggle-all' }, 'Toggle All Input')
+                ]),
+                createElement('ul', { class: 'todo-list', id: 'todoList' }, filteredTodos)
+            ]),
+            createElement('footer', { class: 'footer', 'data-testid': 'footer' }, [
+                createElement('span', { class: 'todo-count' }, `${this.state.todos.length} items left`),
+                createElement('ul', { class: 'filters', 'data-testid': 'footer-navigation' }, [
+                    createElement('li', {}, [createElement('a', { href: '#/', onclick: () => this.setFilter('all') }, 'All')]),
+                    createElement('li', {}, [createElement('a', { href: '#/active', onclick: () => this.setFilter('active') }, 'Active')]),
+                    createElement('li', {}, [createElement('a', { href: '#/completed', onclick: () => this.setFilter('completed') }, 'Completed')])
+                ]),
+                createElement('button', { class: 'clear-completed' }, 'Clear completed')
+            ])
+        ]);
     }
-}
-
-class AboutComp extends Psk.Component {
-    constructor(props, stateManager) {
-        super(props, stateManager);
-        this.state = {
-            todos: stateManager.state.todos || []
-        };
-    }
-
-
-
-    componentDidMount() {
-        console.log('About component mounted');
-        console.log('Current state:', this.stateManager.state);
-        const todoLink =  this.element.querySelector("#todoLink");
-
-        //todoLink.addEventListener("click",()=>this.props.router.navigate("/"))
-        Psk.addListener(todoLink,"click",()=> this.props.router.navigate("/"))
-
-    }
-    render() {
-        return `
-            <div>
-                <h1>About</h1>
-                <p>This is a simple todo app built with a custom component framework.</p>
-                <button id="todoLink">Todo</button>
-                ${this.state.todos && this.state.todos.length ? `
-                    <h2>Todos</h2>
-                    <ul>
-                        ${this.state.todos.map(todo => `<li>${todo}</li>`).join('')}
-                    </ul>
-                ` : ''}
-
-            </div>
-        `;
-    }
-}
-
-
-const routes = {
-    '/': TodoApp,
-    '/about': AboutComp
 }
 
 const stateManager = new Psk.StateManager();
+const routes = { '/': TodoApp };
 
+Psk.addListener(document, "DOMContentLoaded", () => {
+    new Psk.Router(stateManager, routes);
+});
 
-// Simplified application setup assuming a single TodoApp instance
-
-Psk.addListener(document,"DOMContentLoaded",()=>{
-    const router = new Psk.Router(stateManager,routes)
-})
