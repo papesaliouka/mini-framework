@@ -42,8 +42,8 @@ class TodoApp extends Psk.Component {
         this.setState({ newTodo: event.target.value });
     }
 
-    setFilter = (newFilter) => {
-        console.log(newFilter);
+    setFilter = (newFilter,e) => {
+        e.preventDefault();
         this.setState({ filter: newFilter }, this.update); // Update filter state and re-render
     };
 
@@ -247,8 +247,8 @@ class TodoApp extends Psk.Component {
                 createElement('span', { class: 'todo-count' }, `${this.state.todos.filter(item=>!item.completed).length} items left`),
                 createElement('ul', { class: 'filters', 'data-testid': 'footer-navigation' }, [
                     createElement('li', {}, [createElement('a', { href: '#/', onclick: () => this.setFilter('all') }, 'All')]),
-                    createElement('li', {}, [createElement('a', { href: '#/active', onclick: () => this.setFilter('active') }, 'Active')]),
-                    createElement('li', {}, [createElement('a', { href: '#/completed', onclick: () => this.setFilter('completed') }, 'Completed')])
+                    createElement('li', {}, [createElement('a', { href: '#/active', onclick: (e) => this.setFilter('active',e) }, 'Active')]),
+                    createElement('li', {}, [createElement('a', { href: '#/completed', onclick: (e) => this.setFilter('completed',e) }, 'Completed')])
                 ]),
                 createElement(
                     'button', 
