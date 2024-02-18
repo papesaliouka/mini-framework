@@ -7,7 +7,7 @@ class Main extends Psk.Component {
     constructor(props, stateManager) {
         super(props, stateManager);
         this.state = {
-            todos: stateManager.state.todos || [{ text: 'Learn about Web Components', isEditing: false, completed: true }],
+            todos: stateManager.state.todos || [],
         };
     }
 

@@ -3,6 +3,7 @@
 import { addListener, removeListeners } from './listenerManager.js';
 
 function updateElement(element, updates) {
+    console.log("updateElement", element, updates)
     // Update text content
     if (typeof updates.text !== 'undefined') {
         element.textContent = updates.text;

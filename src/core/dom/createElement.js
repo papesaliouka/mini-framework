@@ -20,6 +20,12 @@ function createElement(tagName, attributes = {}, children = [], condition = true
                 // Special case for input elements
                 element.removeAttribute('checked');
             }         
+
+            if (element.tagName ==="BUTTON" && key === 'disabled' && attributes[key]) {
+                // Special case for button elements
+                element.removeAttribute('disabled');
+            }
+
         }
     });
 
