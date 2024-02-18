@@ -1,95 +1,121 @@
-# My Framework
+```markdown
+# Psk Framework Documentation
 
 ## Overview
 
-This README provides example usages of the core functionalities of "My Framework." It is designed as a quick reference guide for developers.
+This document provides an updated guide on using the core functionalities of the Psk Framework, illustrated through the development of a Todo App. Psk Framework simplifies building dynamic web applications by offering an intuitive API for DOM manipulation, event handling, state management, and routing.
 
 ## Table of Contents
 
-- [DOM Abstraction](#dom-abstraction)
+- [DOM Element Creation](#dom-element-creation)
 - [Event Handling](#event-handling)
-- [Templating Engine](#templating-engine)
 - [State Management](#state-management)
 - [Componentization](#componentization)
+- [Routing](#routing)
 
-## DOM Abstraction
+## DOM Element Creation
+
+Psk abstracts the DOM to provide a simpler interface for creating and updating elements. This promotes a declarative way of building the UI.
 
 ### `createElement` Usage
 
 ```javascript
-const myDiv = createElement('div', { class: 'my-class' }, ['Hello, World!']);
-document.body.appendChild(myDiv);
-```
+import Psk from "psk";
 
-### `updateElement` Usage
+const { createElement } = Psk;
 
-```javascript
-const myDiv = document.getElementById('myDiv');
-updateElement(myDiv, {
-    text: "New Content",
-    style: { color: 'blue' }
-});
+// Creating a new div with text content
+const todoItem = createElement('div', { class: 'todo-item' }, 'Buy milk');
+document.body.appendChild(todoItem);
 ```
 
 ## Event Handling
 
-### `manageEvent` Usage
+Psk provides a streamlined way to attach and manage events, enhancing the developer experience by abstracting away boilerplate code.
+
+### Example: Attaching an Event Listener
+
+Within the Todo App, event listeners are attached to handle user inputs and actions, such as adding a new todo item.
 
 ```javascript
-const button = document.querySelector('#myButton');
-const detachEvent = manageEvent(button, 'click', () => {
-    console.log('Button clicked!');
-});
-// To detach the event listener
-detachEvent();
-```
+class TodoApp extends Psk.Component {
+    constructor(props, stateManager) {
+        super(props, stateManager);
+        this.handleKeyPressEvent = this.handleKeyPress.bind(this);
+    }
 
-## Templating Engine
+    attachEventListeners() {
+        const inputField = this.element.querySelector('#newTodoInput');
+        inputField.addEventListener('keypress', this.handleKeyPressEvent);
+    }
 
-### Rendering a Template
-
-```javascript
-const template = '<div>Hello, {{name}}!</div>';
-const data = { name: 'Alice' };
-const rendered = templatingEngine.render(template, data);
-document.body.innerHTML = rendered;
+    handleKeyPress(event) {
+        if (event.key === 'Enter') {
+            this.addTodo();
+        }
+    }
+}
 ```
 
 ## State Management
 
+Psk integrates a state management solution, allowing components to maintain their state and react to state changes.
+
 ### Using `StateManager`
 
 ```javascript
-const stateManager = new StateManager({ name: 'Alice' });
-stateManager.setState({ name: 'Bob' });
-```
+const stateManager = new Psk.StateManager({
+    todos: []
+});
 
-### Binding a Template to State
-
-```javascript
-const template = '<p>Name: {{name}}</p>';
-const targetElement = document.getElementById('target');
-stateManager.bindTemplate(targetElement, template, ['name']);
+class TodoApp extends Psk.Component {
+    addTodo() {
+        // Logic to add a new todo
+        stateManager.setState({ todos: updatedTodos });
+    }
+}
 ```
 
 ## Componentization
 
+Psk encourages building applications with reusable components, each encapsulating its own logic and state.
+
 ### Defining and Using a Component
 
 ```javascript
-class MyComponent extends Component {
-    constructor(props) {
-        super(props);
-        this.state = { title: 'Hello World' };
-    }
+import Psk from "psk";
 
+class Header extends Psk.Component {
     render() {
-        return `<h1>${this.state.title}</h1>`;
+        return createElement('header', {}, 'Todo App');
     }
 }
 
-const myComponent = new MyComponent();
-myComponent.mount('#appContainer');
+// In the main app component
+const header = new Header();
+const headerElement = header.render();
+document.body.appendChild(headerElement);
 ```
 
+## Routing
 
+Psk offers a simple routing solution, enabling the development of single-page applications (SPAs) with multiple views.
+
+### Configuring Routes
+
+```javascript
+import Psk from "psk";
+import TodoApp from "./components/TodoApp";
+
+const stateManager = new Psk.StateManager();
+const routes = { '/': TodoApp };
+
+Psk.addListener(document, "DOMContentLoaded", () => {
+    new Psk.Router(stateManager, routes);
+});
+```
+
+This updated documentation for the Psk Framework provides a quick reference for developers using the Todo App as an example. It covers the essential features needed to build dynamic and interactive web applications with Psk.
+```
+
+This markdown documentation outlines the core features of the Psk Framework, offering a quick and comprehensive guide for developers interested in using this framework for their web applications, demonstrated with the Todo App example.
