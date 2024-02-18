@@ -11,7 +11,7 @@ class TodoApp extends Psk.Component{
         super(props, stateManager);
         this.state = {
             newTodo: '',
-            todos: stateManager.state.todos || [{ text: 'Learn about Web Components', isEditing: false, completed: true }],
+            todos: stateManager.state.todos || [{ text: 'Learn about Web Components', isEditing: false, completed: true, id: 1 }],
             filter: 'all' // Add a filter state to manage the current view
         };
 
@@ -23,7 +23,9 @@ class TodoApp extends Psk.Component{
     addTodo = () => {
         const newTodoText = this.state.newTodo.trim();
         if (newTodoText) {
-            const newTodo = { text: newTodoText, isEditing: false, completed: false };
+            const newTodo = { text: newTodoText, isEditing: false, completed: false,
+                id: Date.now(), // Simple unique ID generation for illustration
+                };
             const updatedTodos = [...this.state.todos, newTodo];
             this.stateManager.setState({ todos: updatedTodos });
             this.setState({ newTodo: '' }, this.update);
@@ -37,8 +39,8 @@ class TodoApp extends Psk.Component{
         if (newTodoInput) newTodoInput.focus();
     }
 
-    removeTodo = (index) => {
-        const updatedTodos = this.state.todos.filter((_, i) => i !== index);
+    removeTodo = (todoId) => {
+        const updatedTodos = this.state.todos.filter(todo => todo.id !== todoId);
         this.stateManager.setState({ todos: updatedTodos });
         this.setState({ todos: updatedTodos }, this.update); // Update state and trigger re-render
     }
@@ -52,9 +54,9 @@ class TodoApp extends Psk.Component{
         this.setState({ filter: newFilter }, this.update); // Update filter state and re-render
     };
 
-    toggleTodoCompletion = (index) => {
-        const updatedTodos = this.state.todos.map((todo, i) => {
-            if (i === index) {
+    toggleTodoCompletion = (todoId) => {
+        const updatedTodos = this.state.todos.map(todo => {
+            if (todo.id === todoId) {
                 return { ...todo, completed: !todo.completed };
             }
             return todo;
@@ -113,9 +115,9 @@ class TodoApp extends Psk.Component{
         }
     };
 
-    toggleEditTodo = (index) => {
+    toggleEditTodo = (id) => {
         const updatedTodos = this.state.todos.map((todo, i) => {
-            if (i === index) return { ...todo, isEditing: !todo.isEditing };
+            if (todo.id === id) return { ...todo, isEditing: !todo.isEditing };
             return todo;
         });
         this.setState({ todos: updatedTodos }, this.update);
@@ -158,7 +160,7 @@ class TodoApp extends Psk.Component{
                             id: `todo-${index}`,
                             type: 'checkbox',
                             checked: todo.completed,
-                            onclick: () => this.toggleTodoCompletion(index)
+                            onclick: () => this.toggleTodoCompletion(todo.id)
                         }
                     ),
                     createElement('label', {
@@ -170,12 +172,12 @@ class TodoApp extends Psk.Component{
                                 event.target.blur(); // Save changes on enter
                             }
                         },
-                        onclick: () => { if (!todo.isEditing) this.toggleEditTodo(index); },
+                        onclick: () => { if (!todo.isEditing) this.toggleEditTodo(todo.id); },
                     }, todo.text),
                     createElement('button', {
                         class: 'destroy removeTodoButton',
-                        'data-index': index,
-                        onclick: () => this.removeTodo(index),
+                        'data-index': todo.id,
+                        onclick: () => this.removeTodo(todo.id),
                     }),
                 ]),
             ]);
@@ -191,7 +193,7 @@ class TodoApp extends Psk.Component{
         return createElement('section', { class: 'todoapp' }, [
             new Header({ newTodo: this.state.newTodo, onInput: this.updateNewTodoValue }, this.stateManager).render(),
             new Main({ todos: this.state.todos, onToggle: this.toggleTodoCompletion, onRemove: this.removeTodo, onUpdate: this.updateTodoText, onToggleAll: this.toggleAllTodos }, this.stateManager).render(),
-            new TodoFooter({ todos: this.state.todos, setFilter: this.setFilter.bind(this), clearCompleted: this.clearCompleted }, this.stateManager).render()
+            new TodoFooter({ todos: this.state.todos, setFilter: this.setFilter, clearCompleted: this.clearCompleted }, this.stateManager).render()
         ]);
     }
 }

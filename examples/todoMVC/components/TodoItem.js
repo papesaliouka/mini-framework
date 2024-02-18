@@ -43,7 +43,7 @@ class TodoItem extends Psk.Component {
                 }, this.props.text),
                 createElement('button', {
                     class: 'destroy removeTodoButton',
-                    'data-index': this.props.index,
+                    'data-index': this.props.id,
                     onclick: this.props.onRemove,
                 }),
             ]),
