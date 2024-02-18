@@ -1,5 +1,5 @@
 import Psk from "../../src";
-import TodoApp from "./components/TodoApp"
+import TodoApp from "./components"
 
 const stateManager = new Psk.StateManager();
 const routes = { '/': TodoApp,}
