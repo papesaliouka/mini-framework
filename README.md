@@ -1,4 +1,3 @@
-```markdown
 # Psk Framework Documentation
 
 ## Overview
@@ -116,6 +115,3 @@ Psk.addListener(document, "DOMContentLoaded", () => {
 ```
 
 This updated documentation for the Psk Framework provides a quick reference for developers using the Todo App as an example. It covers the essential features needed to build dynamic and interactive web applications with Psk.
-```
-
-This markdown documentation outlines the core features of the Psk Framework, offering a quick and comprehensive guide for developers interested in using this framework for their web applications, demonstrated with the Todo App example.
