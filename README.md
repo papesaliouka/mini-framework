@@ -115,3 +115,10 @@ Psk.addListener(document, "DOMContentLoaded", () => {
 ```
 
 This updated documentation for the Psk Framework provides a quick reference for developers using the Todo App as an example. It covers the essential features needed to build dynamic and interactive web applications with Psk.
+
+### Getting Started
+
+# npm init -y 
+# npm install parcell
+# parcel index.html
+## read the package.json in the example todo to see how it's done
